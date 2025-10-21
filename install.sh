@@ -34,6 +34,11 @@ parse_args() {
                 shift
                 ;;
             --branch)
+                if [ -z "${2:-}" ]; then
+                    echo -e "${RED}Error: --branch requires an argument${NC}"
+                    show_help
+                    exit 1
+                fi
                 BRANCH="$2"
                 shift 2
                 ;;
@@ -64,7 +69,7 @@ OPTIONS:
 
 EXAMPLES:
     # Basic installation
-    curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/install.sh | sh
+    curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/install.sh | bash
 
     # Install with force overwrite
     ./install.sh --force
