@@ -80,6 +80,29 @@ EXAMPLES:
 EOF
 }
 
+# Check prerequisites
+check_prerequisites() {
+    echo "Checking prerequisites..."
+
+    # Check for curl or wget
+    if ! command -v curl &> /dev/null && ! command -v wget &> /dev/null; then
+        echo -e "${RED}Error: Neither curl nor wget found${NC}"
+        echo "Please install curl or wget and try again"
+        exit 1
+    fi
+
+    # Check write permission in current directory
+    if ! touch .write-test 2>/dev/null; then
+        echo -e "${RED}Error: No write permission in current directory${NC}"
+        echo "Please run this script from a directory where you have write access"
+        exit 1
+    fi
+    rm -f .write-test
+
+    echo -e "${GREEN}✓${NC} Prerequisites check passed"
+    echo ""
+}
+
 # Main execution
 main() {
     parse_args "$@"
@@ -88,6 +111,8 @@ main() {
     echo "-------------------"
     echo "Branch: $BRANCH"
     echo ""
+
+    check_prerequisites
 }
 
 main "$@"
