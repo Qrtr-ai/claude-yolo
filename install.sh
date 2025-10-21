@@ -4,7 +4,7 @@ set -u  # Exit on undefined variables
 
 # Configuration
 DEFAULT_BRANCH="main"
-REPO_OWNER="USERNAME"  # TODO: Replace with actual GitHub username
+REPO_OWNER="gert-verhoog"
 REPO_NAME="claude-yolo"
 BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}"
 
@@ -159,6 +159,62 @@ check_existing_files() {
     fi
 }
 
+# Install files from repository
+install_files() {
+    echo "Installing files..."
+    echo ""
+
+    local failed_files=()
+
+    for file in "${FILES[@]}"; do
+        # Create directory if needed
+        local dir=$(dirname "$file")
+        if [ ! -d "$dir" ]; then
+            mkdir -p "$dir"
+            echo -e "${GREEN}✓${NC} Created directory: $dir"
+        fi
+
+        # Download file
+        local url="${BASE_URL}/${BRANCH}/${file}"
+        echo "  Downloading $file..."
+
+        if download_file "$url" "$file"; then
+            echo -e "${GREEN}✓${NC} Installed: $file"
+        else
+            echo -e "${RED}✗${NC} Failed: $file"
+            failed_files+=("$file")
+        fi
+    done
+
+    echo ""
+
+    # Check if any downloads failed
+    if [ ${#failed_files[@]} -gt 0 ]; then
+        echo -e "${RED}Error: Failed to download the following files:${NC}"
+        for file in "${failed_files[@]}"; do
+            echo "  - $file"
+        done
+        echo ""
+        echo "Please check your internet connection and try again."
+        cleanup_on_error
+        exit 1
+    fi
+}
+
+# Clean up partial installation on error
+cleanup_on_error() {
+    echo "Cleaning up partial installation..."
+    for file in "${FILES[@]}"; do
+        if [ -f "$file" ]; then
+            rm -f "$file"
+        fi
+    done
+
+    # Remove empty directories
+    rmdir .devcontainer 2>/dev/null || true
+    rmdir scripts 2>/dev/null || true
+}
+
 # Main execution
 main() {
     parse_args "$@"
@@ -171,6 +227,7 @@ main() {
     check_prerequisites
     detect_downloader
     check_existing_files
+    install_files
 }
 
 main "$@"
