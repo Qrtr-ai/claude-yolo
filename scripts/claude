@@ -1,0 +1,72 @@
+#!/bin/bash
+# Run Claude Code with --dangerously-skip-permissions in devcontainer
+# Usage: ./scripts/claude [claude arguments...]
+
+set -e
+
+# Get the project root directory (parent of scripts/)
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Detect if running inside a container
+in_container() {
+    # Check for devcontainer env var
+    if [ -n "${DEVCONTAINER:-}" ]; then
+        return 0
+    fi
+
+    # Check for docker env file
+    if [ -f /.dockerenv ]; then
+        return 0
+    fi
+
+    # Check for container cgroup
+    if grep -q 'docker\|lxc\|containerd' /proc/1/cgroup 2>/dev/null; then
+        return 0
+    fi
+
+    return 1
+}
+
+# Check if devcontainer CLI is available
+check_devcontainer_cli() {
+    if ! command -v npx &> /dev/null; then
+        echo "Error: npx not found. Please install Node.js and npm."
+        echo ""
+        echo "Installation instructions:"
+        echo "  macOS: brew install node"
+        echo "  Ubuntu/Debian: sudo apt install nodejs npm"
+        echo "  Or visit: https://nodejs.org/"
+        exit 1
+    fi
+
+    # Test if @devcontainers/cli is available
+    if ! npx --yes @devcontainers/cli --help &> /dev/null; then
+        echo "Error: @devcontainers/cli not available."
+        echo ""
+        echo "This should be automatically installed via npx, but it failed."
+        echo "Please check your internet connection and npm configuration."
+        exit 1
+    fi
+}
+
+# Check if devcontainer is running
+is_container_running() {
+    docker ps -q --filter "label=devcontainer.local_folder=$PROJECT_ROOT" 2>/dev/null | grep -q .
+}
+
+if in_container; then
+    # Inside container: run with --dangerously-skip-permissions
+    exec claude --dangerously-skip-permissions "$@"
+else
+    # On host: check for devcontainer CLI
+    check_devcontainer_cli
+
+    # Start container if not running
+    if ! is_container_running; then
+        echo "Starting devcontainer..."
+        npx --yes @devcontainers/cli up --workspace-folder "$PROJECT_ROOT"
+    fi
+
+    # Run claude with --dangerously-skip-permissions inside container
+    exec npx --yes @devcontainers/cli exec --workspace-folder "$PROJECT_ROOT" claude --dangerously-skip-permissions "$@"
+fi
