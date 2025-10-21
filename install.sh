@@ -132,6 +132,33 @@ download_file() {
     fi
 }
 
+# Check if files already exist
+check_existing_files() {
+    local existing_files=()
+
+    for file in "${FILES[@]}"; do
+        if [ -f "$file" ]; then
+            existing_files+=("$file")
+        fi
+    done
+
+    if [ ${#existing_files[@]} -gt 0 ]; then
+        echo -e "${YELLOW}Warning: The following files already exist:${NC}"
+        for file in "${existing_files[@]}"; do
+            echo "  - $file"
+        done
+        echo ""
+
+        if [ "$FORCE" = false ]; then
+            echo -e "${RED}Error: Files already exist. Use --force to overwrite.${NC}"
+            exit 1
+        else
+            echo -e "${YELLOW}Using --force flag, will overwrite existing files${NC}"
+            echo ""
+        fi
+    fi
+}
+
 # Main execution
 main() {
     parse_args "$@"
@@ -143,6 +170,7 @@ main() {
 
     check_prerequisites
     detect_downloader
+    check_existing_files
 }
 
 main "$@"
