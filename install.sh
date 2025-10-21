@@ -234,6 +234,24 @@ set_permissions() {
     echo ""
 }
 
+# Print success message with next steps
+print_success() {
+    echo -e "${GREEN}✓ claude-yolo installed successfully!${NC}"
+    echo ""
+    echo "Files installed:"
+    for file in "${FILES[@]}"; do
+        echo "  ✓ $file"
+    done
+    echo ""
+    echo "Next steps:"
+    echo "  1. Run ./scripts/launch-chrome.sh on your host machine"
+    echo "  2. Configure MCP in ~/.claude/.mcp.json (see README for details)"
+    echo "  3. Run ./scripts/claude to start Claude Code in devcontainer"
+    echo ""
+    echo "Documentation: https://github.com/${REPO_OWNER}/${REPO_NAME}"
+    echo ""
+}
+
 # Main execution
 main() {
     parse_args "$@"
@@ -248,6 +266,7 @@ main() {
     check_existing_files
     install_files
     set_permissions
+    print_success
 }
 
 main "$@"
