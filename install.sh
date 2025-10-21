@@ -103,6 +103,35 @@ check_prerequisites() {
     echo ""
 }
 
+# Detect and configure download tool
+detect_downloader() {
+    if command -v curl &> /dev/null; then
+        DOWNLOADER="curl"
+        DOWNLOAD_CMD="curl -fsSL"
+        echo -e "${GREEN}✓${NC} Using curl for downloads"
+    elif command -v wget &> /dev/null; then
+        DOWNLOADER="wget"
+        DOWNLOAD_CMD="wget -qO-"
+        echo -e "${GREEN}✓${NC} Using wget for downloads"
+    else
+        echo -e "${RED}Error: No download tool found${NC}"
+        exit 1
+    fi
+    echo ""
+}
+
+# Download a single file
+download_file() {
+    local url="$1"
+    local output="$2"
+
+    if [ "$DOWNLOADER" = "curl" ]; then
+        curl -fsSL "$url" -o "$output"
+    else
+        wget -qO "$output" "$url"
+    fi
+}
+
 # Main execution
 main() {
     parse_args "$@"
@@ -113,6 +142,7 @@ main() {
     echo ""
 
     check_prerequisites
+    detect_downloader
 }
 
 main "$@"
