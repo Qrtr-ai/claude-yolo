@@ -12,6 +12,9 @@ yarn.lock
 # Chrome user data
 .chrome-claude-devcontainer/
 
+# Git worktrees
+.worktrees/
+
 # OS files
 .DS_Store
 Thumbs.db
