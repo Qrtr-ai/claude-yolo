@@ -37,7 +37,17 @@
   "remoteUser": "node",
   "mounts": [
     "source=claude-code-bashhistory-${devcontainerId},target=/commandhistory,type=volume",
-    "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
+
+    // Choose one of the options below to either use your host's ~/.claude, or create a private one for your
+    // container
+    //
+    // OPTION 1: Mount ~/.claude from your host READ/WRITE
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.claude,target=/home/node/.claude,type=bind,consistency=cached"
+
+    // OPTION 2: Fully isolated config
+    // Container has its own separate config (no host plugins/settings)
+    // Uncomment the line below and comment out Strategy 1 or 2:
+    // "source=claude-code-config-${devcontainerId},target=/home/node/.claude,type=volume"
   ],
   "containerEnv": {
     "NODE_OPTIONS": "--max-old-space-size=4096",

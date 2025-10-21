@@ -8,6 +8,40 @@ in their [Claude Code github repo](https://github.com/anthropics/claude-code).
 This is purely for educational purposes, demonstrating how you could use Claude's devcontainer setup for your own
 projects. I offer no guarantees on the security aspects of this approach, or even that it's working at all.
 
+## Table of Contents
+
+- [What is this?](#what-is-this)
+  - [Key Features](#key-features)
+- [Why does this exist?](#why-does-this-exist)
+- [Prerequisites](#prerequisites)
+  - [Required](#required)
+  - [Optional (for Chrome DevTools integration)](#optional-for-chrome-devtools-integration)
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Method 1: Inside VS Code](#method-1-inside-vs-code)
+  - [Method 2: From Host Terminal](#method-2-from-host-terminal)
+  - [With Chrome DevTools Integration](#with-chrome-devtools-integration)
+- [How it works](#how-it-works)
+  - [Architecture](#architecture)
+  - [Security Model](#security-model)
+  - [What gets mounted](#what-gets-mounted)
+- [Configuration](#configuration)
+  - [Customizing the Container](#customizing-the-container)
+  - [Customizing MCP Servers](#customizing-mcp-servers)
+- [Running Chrome with remote debugging enabled](#running-chrome-with-remote-debugging-enabled)
+- [Troubleshooting](#troubleshooting)
+  - [Container won't start](#container-wont-start)
+  - [Chrome DevTools connection fails](#chrome-devtools-connection-fails)
+  - [Claude authentication issues](#claude-authentication-issues)
+  - [Permission denied errors](#permission-denied-errors)
+- [Advanced Usage](#advanced-usage)
+  - [Running without VS Code](#running-without-vs-code)
+  - [Accessing the container shell](#accessing-the-container-shell)
+  - [Adding packages to the container](#adding-packages-to-the-container)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## What is this?
 
 **YOLO** = **Y**ou **O**nly **L**ive in a c**O**ntainer
@@ -18,11 +52,13 @@ This repository provides a VS Code _devcontainer_ setup that allows Claude Code 
 (`--dangerously-skip-permissions`) in a sandboxed Docker environment. This gives Claude the freedom to make changes
 without constant permission prompts, while keeping your host system safe through container isolation.
 
+---
 > **⚠️ DISCLAIMER**: Docker isolation provides no absolute guarantees, and letting it use your host's Chrome obviously
-> breaks isolation, and it can still destroy whatever is inside your project repo. So while it's _safer_ than bypassing
-> permissions on your host, and much less annoying than either maintaining `permissions` blocks in your `settings.json` or
-> selecting `yes and don't ask again for similar commands`, you trade some level of security for some level of
-> convenience, as is often the case. 💀
+> breaks isolation, and it can still _potentially_ destroy whatever is inside your project repo and your `~/.claude`. So
+> while it's _safer_ than bypassing permissions on your host, and much less annoying than either maintaining
+> `permissions` blocks in your `settings.json` or selecting `yes and don't ask again for similar commands`, you trade
+> some level of security for some level of convenience, as is often the case. 💀
+---
 
 ### Key Features
 
@@ -35,19 +71,20 @@ without constant permission prompts, while keeping your host system safe through
 ## Why does this exist?
 
 Claude Code's `--dangerously-skip-permissions` flag allows Claude to operate without constant permission prompts, but
-using it directly on your host system ~~can be risky~~ _is super dangerous_. This setup provides the best of both worlds:
+using it directly on your host system ~~can be risky~~ _is super dangerous_. This setup provides the best of both
+worlds:
 
 1. **Freedom for Claude**: Claude can do whatever it wants inside the container, without begging you for permission
 2. **Safety for you**: The "blast radius" for Claude messing up is limited to the container and mounted workspace
-3. **Browser automation**: The Chrome DevTools MCP server integration allows Claude to interact with a running
-   Chrome browser for testing and debugging
+3. **Browser automation**: The Chrome DevTools MCP server integration allows Claude to interact with a running Chrome
+   browser for testing and debugging
 
 ## Prerequisites
 
 ### Required
 
-- **Docker Desktop** (macOS/Windows) or **Docker Engine** (Linux) - _(NOTE: only macOS is tested, by me,
-  and only barely)_
+- **Docker Desktop** (macOS/Windows) or **Docker Engine** (Linux) - _(NOTE: only macOS is tested, by me, and only
+  barely)_
 
   - macOS: Get [Docker Desktop](https://www.docker.com/products/docker-desktop/) or `brew install --cask docker`
   - Windows: Download from [docker.com](https://www.docker.com/products/docker-desktop)
@@ -61,12 +98,12 @@ using it directly on your host system ~~can be risky~~ _is super dangerous_. Thi
 
 - **VS Code** with the following extensions:
 
-  - [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) (`ms-vscode-remote.remote-containers`)
+  - [Dev Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+    (`ms-vscode-remote.remote-containers`)
 
 - **Claude Code** authentication
-  - The first time you run the container and fire up claude inside it, it will ask you to authenticate by
-    opening an OAuth link and pasting the auth code. Credentials will be persisted on the Docker volume between
-    restarts.
+  - The first time you run the container and fire up claude inside it, it will ask you to authenticate by opening an
+    OAuth link and pasting the auth code. Credentials will be persisted on the Docker volume between restarts.
 
 ### Optional (for Chrome DevTools integration)
 
@@ -85,14 +122,14 @@ using it directly on your host system ~~can be risky~~ _is super dangerous_. Thi
 
 1. **Clone this repository**:
 
-   ```bash
+   ```sh
    git clone https://github.com/yourusername/claude-yolo.git
    cd claude-yolo
    ```
 
 2. **Open in VS Code**:
 
-   ```bash
+   ```sh
    code .
    ```
 
@@ -104,15 +141,14 @@ using it directly on your host system ~~can be risky~~ _is super dangerous_. Thi
 
 4. **Claude Code first run** (if you haven't already):
 
-   ```bash
+   ```sh
    claude
    ```
 
-   Then follow the prompts to select a theme and authenticate with Anthropic. NOTE: Claude wants to open
-   a link in your browser, which may or may not succeed, and the OAuth process wants to come back to claude,
-   but since it's running in a container in VS Code that might not succeed. If it doesn't work automatically,
-   copy the URL claude displays, plonk it in a browser, authenticate, copy the code, then paste the code into
-   claude. You should only have to do this once.
+   Then follow the prompts to select a theme and authenticate with Anthropic. NOTE: Claude wants to open a link in your
+   browser, which may or may not succeed, and the OAuth process wants to come back to claude, but since it's running in
+   a container in VS Code that might not succeed. If it doesn't work automatically, copy the URL claude displays, plonk
+   it in a browser, authenticate, copy the code, then paste the code into claude. You should only have to do this once.
 
 ## Usage
 
@@ -122,13 +158,13 @@ Once the container is running:
 
 1. Open VS Code terminal (inside the container)
 2. Run Claude Code with full permissions:
-   ```bash
+   ```sh
    ./scripts/claude
    ```
 
    Or manually:
 
-   ```bash
+   ```sh
    claude --dangerously-skip-permissions
    ```
 
@@ -136,7 +172,7 @@ Once the container is running:
 
 You can run Claude inside the container from your host terminal:
 
-```bash
+```sh
 ./scripts/claude
 ```
 
@@ -152,7 +188,7 @@ To enable Claude to control and debug Chrome:
 
 1. **On your host**, launch Chrome with debugging enabled:
 
-   ```bash
+   ```sh
    ./scripts/launch-chrome.sh
    ```
 
@@ -163,7 +199,8 @@ To enable Claude to control and debug Chrome:
    - Execute JavaScript
    - Interact with DOM elements
 
-The container automatically proxies port 9222 from the host, so the chrome-devtools MCP server (configured in `.mcp.json`) can connect to your host Chrome.
+The container automatically proxies port 9222 from the host, so the chrome-devtools MCP server (configured in
+`.mcp.json`) can connect to your host Chrome.
 
 ## How it works
 
@@ -206,8 +243,13 @@ The container automatically proxies port 9222 from the host, so the chrome-devto
 ### What gets mounted
 
 - **Workspace**: Your project directory → `/workspace` (read/write)
-- **Claude config**: Docker volume → `/home/node/.claude` (persistent)
+- **Claude config**: Host `~/.claude` → `/home/node/.claude` (read/write bind mount)
+  - ⚠️ **NOTE**: this directory is mounted writeable, so claude can potentially mess it up.
+  - **Alternatively** you can mount a docker volume for `~/.claude` in the container to provide
+    full isolation from the host's `~/.claude`. See the `.devcontainer/devcontainer.json` file for details.
 - **Bash history**: Docker volume → `/commandhistory` (persistent)
+
+---
 
 ## Configuration
 
@@ -295,11 +337,16 @@ mkdir -p "$USER_DATA_DIR"
 
 **Problem**: "Not logged in" errors inside container
 
-**Solutions**:
+**Solutions:**
 
-- Run `npx @anthropic-ai/claude-code login` on your **host** first
-- Restart the container to remount the Claude config volume
-- Check volume mount: `ls -la /home/node/.claude` (inside container)
+- Authenticate on your host: `npx @anthropic-ai/claude-code login`
+- Restart container to pick up credentials
+- Note: macOS keychain credentials won't sync; use `--use-credential-file` on host if needed
+
+**or, if you're not mounting ~/.claude**
+
+- Authenticate inside the container: `npx @anthropic-ai/claude-code login`
+- Credentials persist in the container's Docker volume
 
 ### Permission denied errors
 
@@ -311,15 +358,7 @@ mkdir -p "$USER_DATA_DIR"
 - On Linux, the `node` user (uid 1000) should match your host user
 - If needed, adjust file ownership: `sudo chown -R $(whoami) .`
 
-### Slow container performance
-
-**Problem**: Container feels sluggish or builds take forever
-
-**Solutions**:
-
-- Increase Docker Desktop memory: Settings → Resources → Memory (8GB recommended)
-- Use Docker volumes instead of bind mounts for node_modules if building Node.js projects
-- On macOS, consider using `:cached` or `:delegated` mount options
+---
 
 ## Advanced Usage
 
@@ -327,7 +366,13 @@ mkdir -p "$USER_DATA_DIR"
 
 You can use the devcontainer without VS Code:
 
-```bash
+```sh
+./scripts/claude
+```
+
+That detects if you're in a container, and if not, will do one of:
+
+```sh
 # Start the container
 npx @devcontainers/cli up --workspace-folder .
 
@@ -338,9 +383,11 @@ npx @devcontainers/cli up --workspace-folder .
 npx @devcontainers/cli exec --workspace-folder . claude --dangerously-skip-permissions
 ```
 
+You an also still use regular old `claude` on the host and ignore this entire setup.
+
 ### Accessing the container shell
 
-```bash
+```sh
 # From host
 npx @devcontainers/cli exec --workspace-folder . zsh
 
@@ -348,9 +395,9 @@ npx @devcontainers/cli exec --workspace-folder . zsh
 # Just open a new terminal (it opens inside the container)
 ```
 
-### Adding language toolchains
+### Adding packages to the container
 
-Edit `.devcontainer/Dockerfile` to add your language, then rebuild the container in VS Code:
+Edit `.devcontainer/Dockerfile` to add/edit packages you want to install, then rebuild the container in VS Code:
 
 **Python**:
 
@@ -376,8 +423,8 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details. Use of Anthropic's
-[.devcontainer](https://github.com/anthropics/claude-code/tree/main/.devcontainer) config is subject to their
-[Terms of Service](https://www.anthropic.com/legal/commercial-terms).
+[.devcontainer](https://github.com/anthropics/claude-code/tree/main/.devcontainer) config is subject to their [Terms of
+Service](https://www.anthropic.com/legal/commercial-terms).
 
 ## Acknowledgments
 
