@@ -124,10 +124,53 @@ worlds:
 
 ## Installation
 
+Install claude-yolo in your existing project with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gert-verhoog/claude-yolo/main/install.sh | bash
+```
+
+Or inspect the script before running:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gert-verhoog/claude-yolo/main/install.sh -o install.sh
+chmod +x install.sh
+./install.sh
+```
+
+### Installation Options
+
+- `--force` - Overwrite existing files without prompting
+- `--branch NAME` - Install from a specific branch (default: main)
+- `--help` - Show help message
+
+### Examples
+
+```bash
+# Install with force overwrite
+./install.sh --force
+
+# Install from develop branch
+./install.sh --branch develop
+```
+
+### What Gets Installed
+
+The installer creates the following files in your project:
+
+- `.devcontainer/devcontainer.json` - VS Code devcontainer configuration
+- `.devcontainer/Dockerfile` - Container image definition
+- `scripts/claude` - Wrapper script for running Claude Code
+- `scripts/launch-chrome.sh` - Host-side Chrome launcher
+
+### Manual Installation (Alternative)
+
+If you prefer to set this up manually:
+
 1. **Clone this repository**:
 
    ```sh
-   git clone https://github.com/yourusername/claude-yolo.git
+   git clone https://github.com/gert-verhoog/claude-yolo.git
    cd claude-yolo
    ```
 
@@ -153,14 +196,6 @@ worlds:
    browser, which may or may not succeed, and the OAuth process wants to come back to claude, but since it's running in
    a container in VS Code that might not succeed. If it doesn't work automatically, copy the URL claude displays, plonk
    it in a browser, authenticate, copy the code, then paste the code into claude. You should only have to do this once.
-
-## Installation in your own project
-
-Copy the following files to your own project, then follow steps 2-4 above:
-
-* `.devcontainer/devcontainer.js`
-* `.devcontainer/Dockerfile`
-* `.scripts/claude`
 
 ## Usage
 
