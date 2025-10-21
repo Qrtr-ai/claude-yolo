@@ -215,6 +215,25 @@ cleanup_on_error() {
     rmdir scripts 2>/dev/null || true
 }
 
+# Set executable permissions on scripts
+set_permissions() {
+    echo "Setting permissions..."
+
+    local scripts=(
+        "scripts/claude"
+        "scripts/launch-chrome.sh"
+    )
+
+    for script in "${scripts[@]}"; do
+        if [ -f "$script" ]; then
+            chmod +x "$script"
+            echo -e "${GREEN}✓${NC} Made executable: $script"
+        fi
+    done
+
+    echo ""
+}
+
 # Main execution
 main() {
     parse_args "$@"
@@ -228,6 +247,7 @@ main() {
     detect_downloader
     check_existing_files
     install_files
+    set_permissions
 }
 
 main "$@"
