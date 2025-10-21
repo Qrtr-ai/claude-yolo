@@ -197,6 +197,37 @@ If you prefer to set this up manually:
    a container in VS Code that might not succeed. If it doesn't work automatically, copy the URL claude displays, plonk
    it in a browser, authenticate, copy the code, then paste the code into claude. You should only have to do this once.
 
+## Installation in your own project
+
+Copy the following files to your own project, then follow steps 2-4 above:
+
+* `.devcontainer/devcontainer.js`
+* `.devcontainer/Dockerfile`
+* `.scripts/claude`
+
+Optionally, for the Chrome DevTools, also copy:
+
+* `./scripts/launch-chrome.sh`
+
+And add the Chrome DevTools to your MCP servers in `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--browserUrl=http://localhost:9222",
+        "--logFile=/tmp/chrome-devtools-mcp.log"
+      ],
+      "env": {}
+    }
+  }
+}
+```
+
 ## Usage
 
 ### Method 1: Inside VS Code
