@@ -58,6 +58,10 @@ without constant permission prompts, while keeping your host system safe through
 > while it's _safer_ than bypassing permissions on your host, and much less annoying than either maintaining
 > `permissions` blocks in your `settings.json` or selecting `yes and don't ask again for similar commands`, you trade
 > some level of security for some level of convenience, as is often the case. 💀
+>
+> ALSO: Antrophic's [repo](https://github.com/anthropics/claude-code/tree/main/.devcontainer) has an
+> [`init-firewall.sh`](https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh) script
+> that I am not using, so please be aware of this.
 ---
 
 ### Key Features
@@ -149,6 +153,14 @@ worlds:
    browser, which may or may not succeed, and the OAuth process wants to come back to claude, but since it's running in
    a container in VS Code that might not succeed. If it doesn't work automatically, copy the URL claude displays, plonk
    it in a browser, authenticate, copy the code, then paste the code into claude. You should only have to do this once.
+
+## Installation in your own project
+
+Copy the following files to your own project, then follow steps 2-4 above:
+
+* `.devcontainer/devcontainer.js`
+* `.devcontainer/Dockerfile`
+* `.scripts/claude`
 
 ## Usage
 
