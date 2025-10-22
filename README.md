@@ -127,13 +127,13 @@ worlds:
 Install claude-yolo in your existing project with a single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gert-verhoog/claude-yolo/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Qrtr-ai/claude-yolo/main/install.sh | bash
 ```
 
 Or inspect the script before running:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gert-verhoog/claude-yolo/main/install.sh -o install.sh
+curl -fsSL https://raw.githubusercontent.com/Qrtr-ai/claude-yolo/main/install.sh -o install.sh
 chmod +x install.sh
 ./install.sh
 ```
@@ -170,7 +170,7 @@ If you prefer to set this up manually:
 1. **Clone this repository**:
 
    ```sh
-   git clone https://github.com/gert-verhoog/claude-yolo.git
+   git clone https://github.com/Qrtr-ai/claude-yolo.git
    cd claude-yolo
    ```
 
