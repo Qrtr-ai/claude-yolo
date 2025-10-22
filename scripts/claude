@@ -1,11 +1,57 @@
 #!/bin/bash
 # Run Claude Code with --dangerously-skip-permissions in devcontainer
-# Usage: ./scripts/claude [claude arguments...]
+# Usage: claude [claude arguments...]
+# Place this in ~/local/bin or similar location in PATH to shadow claude binary
 
 set -e
 
-# Get the project root directory (parent of scripts/)
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Find the real Claude binary (not this script)
+find_claude_binary() {
+    # Check for local installation first
+    if [ -x "$HOME/.claude/local/claude" ]; then
+        echo "$HOME/.claude/local/claude"
+        return 0
+    fi
+
+    # Find claude in PATH, but not this script
+    local script_path="$(realpath "${BASH_SOURCE[0]}" 2>/dev/null || readlink -f "${BASH_SOURCE[0]}")"
+    local claude_path="$(command -v claude 2>/dev/null)"
+
+    if [ -n "$claude_path" ]; then
+        local resolved_claude="$(realpath "$claude_path" 2>/dev/null || readlink -f "$claude_path" 2>/dev/null || echo "$claude_path")"
+        # Skip if it's this script
+        if [ "$resolved_claude" != "$script_path" ]; then
+            echo "$claude_path"
+            return 0
+        fi
+    fi
+
+    # Fallback to just 'claude' and hope for the best
+    echo "claude"
+    return 0
+}
+
+CLAUDE_BIN=$(find_claude_binary)
+
+# Find project root by walking up directories looking for .devcontainer
+find_project_root() {
+    local dir="$(pwd)"
+    while [ "$dir" != "/" ]; do
+        if [ -d "$dir/.devcontainer" ]; then
+            echo "$dir"
+            return 0
+        fi
+        dir="$(dirname "$dir")"
+    done
+    return 1
+}
+
+# Try to find project root, otherwise we'll run claude normally
+if PROJECT_ROOT=$(find_project_root); then
+    USE_DEVCONTAINER=true
+else
+    USE_DEVCONTAINER=false
+fi
 
 # Detect if running inside a container
 in_container() {
@@ -57,8 +103,8 @@ is_container_running() {
 if in_container; then
     # Inside container: run with --dangerously-skip-permissions
     exec claude --dangerously-skip-permissions "$@"
-else
-    # On host: check for devcontainer CLI
+elif [ "$USE_DEVCONTAINER" = true ]; then
+    # On host with .devcontainer: use devcontainer
     check_devcontainer_cli
 
     # Start container if not running
@@ -69,4 +115,7 @@ else
 
     # Run claude with --dangerously-skip-permissions inside container
     exec npx --yes @devcontainers/cli exec --workspace-folder "$PROJECT_ROOT" claude --dangerously-skip-permissions "$@"
+else
+    # No .devcontainer found: run claude normally
+    exec "$CLAUDE_BIN" "$@"
 fi
