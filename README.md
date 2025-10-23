@@ -46,15 +46,16 @@ projects. I offer no guarantees on the security aspects of this approach, or eve
 
 **YOLO** = **Y**ou **O**nly **L**ive in a c**O**ntainer
 
-_(Claude came up with that high-larious pun btw when I told it to write this README)_
+_(Claude came up with that high-larious pun all on its own btw when I told it to write this README)_
 
-This repository provides a VS Code _devcontainer_ setup that allows Claude Code to run with full permissions
-(`--dangerously-skip-permissions`) in a sandboxed Docker environment. This gives Claude the freedom to make changes
-without constant permission prompts, while keeping your host system safe through container isolation.
+This repository provides a VS Code [_devcontainer_](https://code.visualstudio.com/docs/devcontainers/containers) setup
+that allows Claude Code to run with full permissions (`--dangerously-skip-permissions`) in a sandboxed Docker
+environment. This gives Claude the freedom to make changes without constant permission prompts, while keeping your host
+system safe through container isolation.
 
 ---
 > **⚠️ DISCLAIMER**: Docker isolation provides no absolute guarantees, and letting it use your host's Chrome obviously
-> breaks isolation, and it can still _potentially_ destroy whatever is inside your project repo and your `~/.claude`. So
+> breaks isolation, and it can still _potentially_ destroy whatever is inside your project and your `~/.claude`. So
 > while it's _safer_ than bypassing permissions on your host, and much less annoying than either maintaining
 > `permissions` blocks in your `settings.json` or selecting `yes and don't ask again for similar commands`, you trade
 > some level of security for some level of convenience, as is often the case. 💀
@@ -67,6 +68,8 @@ without constant permission prompts, while keeping your host system safe through
 ### Key Features
 
 - **Isolation**: Claude runs with full permissions inside a Docker container, protecting your host system
+- **Access to your workspace**: Your project directory is mounted in the container under `/workspace`.
+- **Access to `~/.claude`**: Uses your existing claude config, plugins, etcetera
 - **Chrome DevTools integration**: Drive Chrome running on your host from Claude MCP inside the container
 - **Persistent configuration**: Your Claude authentication persists across container restarts
 - **Zero permission prompts**: Claude can freely modify files and run commands within the container
@@ -127,15 +130,14 @@ worlds:
 Install claude-yolo in your existing project with a single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Qrtr-ai/claude-yolo/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Qrtr-ai/claude-yolo/main/install.sh | sh
 ```
 
 Or inspect the script before running:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Qrtr-ai/claude-yolo/main/install.sh -o install.sh
-chmod +x install.sh
-./install.sh
+sh install.sh
 ```
 
 ### Installation Options
@@ -148,10 +150,10 @@ chmod +x install.sh
 
 ```bash
 # Install with force overwrite
-./install.sh --force
+sh install.sh --force
 
 # Install from develop branch
-./install.sh --branch develop
+sh install.sh --branch develop
 ```
 
 ### What Gets Installed
@@ -192,10 +194,11 @@ If you prefer to set this up manually:
    claude
    ```
 
-   Then follow the prompts to select a theme and authenticate with Anthropic. NOTE: Claude wants to open a link in your
-   browser, which may or may not succeed, and the OAuth process wants to come back to claude, but since it's running in
-   a container in VS Code that might not succeed. If it doesn't work automatically, copy the URL claude displays, plonk
-   it in a browser, authenticate, copy the code, then paste the code into claude. You should only have to do this once.
+   Then if asked, follow the prompts to select a theme and authenticate with Anthropic. NOTE: Claude wants to open a
+   link in your browser, which may or may not succeed, and the OAuth process wants to come back to claude, but since
+   it's running in a container in VS Code that might not succeed. If it doesn't work automatically, copy the URL claude
+   displays, plonk it in a browser, authenticate, copy the code, then paste the code into claude. You should only have
+   to do this once.
 
 ## Installation in your own project
 
@@ -246,6 +249,9 @@ Once the container is running:
    claude --dangerously-skip-permissions
    ```
 
+Or simply open the Claude icon that runs the command "Claude Code: Open in Terminal". It will automatically open
+claude code with `--dangerously-skip-permissions`.
+
 ### Method 2: From Host Terminal
 
 You can run Claude inside the container from your host terminal:
@@ -259,6 +265,9 @@ This script automatically:
 - Detects if you're inside or outside the container
 - Starts the devcontainer if not running
 - Runs Claude with `--dangerously-skip-permissions` inside the container
+
+**NOTE**: This script can run from anywhere. I copied it to `~/opt/bin/claude` which is on my `PATH` so I can run it
+from anywhere and it will automatically run in a devcontainer if you have one in your project.
 
 ### With Chrome DevTools Integration
 

@@ -158,6 +158,8 @@ check_existing_files() {
             printf "%b\n" "${RED}Error: Files already exist. Use --force to overwrite.${NC}"
             printf "\n"
             if is_piped; then
+                printf "%b\n" "${RED}Force install directly from the repository with:${NC}"
+                printf "\n"
                 printf "%b\n" "${RED}curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/install.sh | sh -s -- --force${NC}"
             fi
             exit 1
@@ -255,7 +257,7 @@ print_success() {
     echo "Next steps:"
     echo "  1. Run ./scripts/launch-chrome.sh on your host machine"
     echo "  2. Configure MCP in ~/.claude/.mcp.json (see README for details)"
-    echo "  3. Run ./scripts/claude to start Claude Code in devcontainer"
+    echo "  3. Run claude in Claude devcontainer to run claude with full permissions"
     echo ""
     echo "Documentation: https://github.com/${REPO_OWNER}/${REPO_NAME}"
     echo ""
