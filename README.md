@@ -1,23 +1,45 @@
 # Claude YOLO - Safe Devcontainer for Claude Code
 
-A Docker-based development environment that lets you run Claude Code with `--dangerously-skip-permissions` safely,
-isolated from your host system. Inspired by Claude's documentation on [Development
+**YOLO** = **Y**ou **O**nly **L**ive in a c**O**ntainer
+
+_(Claude came up with that high-larious pun all on its own btw when I told it to write this README)_
+
+This repository provides a VS Code [_devcontainer_](https://code.visualstudio.com/docs/devcontainers/containers) setup
+that allows Claude Code to run with full permissions (`--dangerously-skip-permissions`) in a sandboxed Docker
+environment. This gives Claude the freedom to make changes without constant permission prompts, while keeping your host
+system safe through container isolation. Inspired by Claude's documentation on [Development
 Containers](https://docs.claude.com/en/docs/claude-code/devcontainer) and Claude's development container configuration
 in their [Claude Code github repo](https://github.com/anthropics/claude-code).
 
 This is purely for educational purposes, demonstrating how you could use Claude's devcontainer setup for your own
 projects. I offer no guarantees on the security aspects of this approach, or even that it's working at all.
 
+---
+> **⚠️ DISCLAIMER**: Docker isolation provides no absolute guarantees, and letting it use your host's Chrome obviously
+> breaks isolation, and it can still _potentially_ destroy whatever is inside your project and your `~/.claude`. So
+> while it's _safer_ than bypassing permissions on your host, and much less annoying than either maintaining
+> `permissions` blocks in your `settings.json` or selecting `yes and don't ask again for similar commands`, you trade
+> some level of security for some level of convenience, as is often the case. 💀
+>
+> ALSO: Antrophic's [repo](https://github.com/anthropics/claude-code/tree/main/.devcontainer) has an
+> [`init-firewall.sh`](https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh) script
+> that I am not using, so please be aware of this.
+---
+
 ## Table of Contents
 
-- [What is this?](#what-is-this)
-  - [Key Features](#key-features)
+- [Key Features](#key-features)
 - [Why does this exist?](#why-does-this-exist)
 - [Prerequisites](#prerequisites)
   - [Required](#required)
   - [Optional (for Chrome DevTools integration)](#optional-for-chrome-devtools-integration)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
+  - [Installation Options](#installation-options)
+  - [Examples](#examples)
+  - [What Gets Installed](#what-gets-installed)
+  - [Manual Installation (Alternative)](#manual-installation-alternative)
+- [Installation in your own project](#installation-in-your-own-project)
 - [Usage](#usage)
   - [Method 1: Inside VS Code](#method-1-inside-vs-code)
   - [Method 2: From Host Terminal](#method-2-from-host-terminal)
@@ -41,29 +63,6 @@ projects. I offer no guarantees on the security aspects of this approach, or eve
   - [Adding packages to the container](#adding-packages-to-the-container)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
-
-## What is this?
-
-**YOLO** = **Y**ou **O**nly **L**ive in a c**O**ntainer
-
-_(Claude came up with that high-larious pun all on its own btw when I told it to write this README)_
-
-This repository provides a VS Code [_devcontainer_](https://code.visualstudio.com/docs/devcontainers/containers) setup
-that allows Claude Code to run with full permissions (`--dangerously-skip-permissions`) in a sandboxed Docker
-environment. This gives Claude the freedom to make changes without constant permission prompts, while keeping your host
-system safe through container isolation.
-
----
-> **⚠️ DISCLAIMER**: Docker isolation provides no absolute guarantees, and letting it use your host's Chrome obviously
-> breaks isolation, and it can still _potentially_ destroy whatever is inside your project and your `~/.claude`. So
-> while it's _safer_ than bypassing permissions on your host, and much less annoying than either maintaining
-> `permissions` blocks in your `settings.json` or selecting `yes and don't ask again for similar commands`, you trade
-> some level of security for some level of convenience, as is often the case. 💀
->
-> ALSO: Antrophic's [repo](https://github.com/anthropics/claude-code/tree/main/.devcontainer) has an
-> [`init-firewall.sh`](https://github.com/anthropics/claude-code/blob/main/.devcontainer/init-firewall.sh) script
-> that I am not using, so please be aware of this.
----
 
 ### Key Features
 
