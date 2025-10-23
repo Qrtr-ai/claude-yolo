@@ -4,7 +4,7 @@ set -u  # Exit on undefined variables
 
 # Configuration
 DEFAULT_BRANCH="main"
-REPO_OWNER="gert-verhoog"
+REPO_OWNER="Qrtr-ai"
 REPO_NAME="claude-yolo"
 BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}"
 
@@ -22,6 +22,11 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Check if script is running from a pipe (e.g., curl | sh)
+is_piped() {
+    [ ! -t 0 ]
+}
+
 # Parse command line arguments
 parse_args() {
     FORCE=false
@@ -35,7 +40,7 @@ parse_args() {
                 ;;
             --branch)
                 if [ -z "${2:-}" ]; then
-                    echo -e "${RED}Error: --branch requires an argument${NC}"
+                    printf "%b\n" "${RED}Error: --branch requires an argument${NC}"
                     show_help
                     exit 1
                 fi
@@ -47,7 +52,7 @@ parse_args() {
                 exit 0
                 ;;
             *)
-                echo -e "${RED}Error: Unknown option $1${NC}"
+                printf "%b\n" "${RED}Error: Unknown option $1${NC}"
                 show_help
                 exit 1
                 ;;
@@ -69,7 +74,7 @@ OPTIONS:
 
 EXAMPLES:
     # Basic installation
-    curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/install.sh | bash
+    curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/install.sh | sh
 
     # Install with force overwrite
     ./install.sh --force
@@ -86,20 +91,20 @@ check_prerequisites() {
 
     # Check for curl or wget
     if ! command -v curl &> /dev/null && ! command -v wget &> /dev/null; then
-        echo -e "${RED}Error: Neither curl nor wget found${NC}"
+        printf "%b\n" "${RED}Error: Neither curl nor wget found${NC}"
         echo "Please install curl or wget and try again"
         exit 1
     fi
 
     # Check write permission in current directory
     if ! touch .write-test 2>/dev/null; then
-        echo -e "${RED}Error: No write permission in current directory${NC}"
+        printf "%b\n" "${RED}Error: No write permission in current directory${NC}"
         echo "Please run this script from a directory where you have write access"
         exit 1
     fi
     rm -f .write-test
 
-    echo -e "${GREEN}✓${NC} Prerequisites check passed"
+    printf "%b\n" "${GREEN}✓${NC} Prerequisites check passed"
     echo ""
 }
 
@@ -108,13 +113,13 @@ detect_downloader() {
     if command -v curl &> /dev/null; then
         DOWNLOADER="curl"
         DOWNLOAD_CMD="curl -fsSL"
-        echo -e "${GREEN}✓${NC} Using curl for downloads"
+        printf "%b\n" "${GREEN}✓${NC} Using curl for downloads"
     elif command -v wget &> /dev/null; then
         DOWNLOADER="wget"
         DOWNLOAD_CMD="wget -qO-"
-        echo -e "${GREEN}✓${NC} Using wget for downloads"
+        printf "%b\n" "${GREEN}✓${NC} Using wget for downloads"
     else
-        echo -e "${RED}Error: No download tool found${NC}"
+        printf "%b\n" "${RED}Error: No download tool found${NC}"
         exit 1
     fi
     echo ""
@@ -143,17 +148,21 @@ check_existing_files() {
     done
 
     if [ ${#existing_files[@]} -gt 0 ]; then
-        echo -e "${YELLOW}Warning: The following files already exist:${NC}"
+        printf "%b\n" "${YELLOW}Warning: The following files already exist:${NC}"
         for file in "${existing_files[@]}"; do
             echo "  - $file"
         done
         echo ""
 
         if [ "$FORCE" = false ]; then
-            echo -e "${RED}Error: Files already exist. Use --force to overwrite.${NC}"
+            printf "%b\n" "${RED}Error: Files already exist. Use --force to overwrite.${NC}"
+            printf "\n"
+            if is_piped; then
+                printf "%b\n" "${RED}curl -fsSL https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/install.sh | sh -s -- --force${NC}"
+            fi
             exit 1
         else
-            echo -e "${YELLOW}Using --force flag, will overwrite existing files${NC}"
+            printf "%b\n" "${YELLOW}Using --force flag, will overwrite existing files${NC}"
             echo ""
         fi
     fi
@@ -171,7 +180,7 @@ install_files() {
         local dir=$(dirname "$file")
         if [ ! -d "$dir" ]; then
             mkdir -p "$dir"
-            echo -e "${GREEN}✓${NC} Created directory: $dir"
+            printf "%b\n" "${GREEN}✓${NC} Created directory: $dir"
         fi
 
         # Download file
@@ -179,9 +188,9 @@ install_files() {
         echo "  Downloading $file..."
 
         if download_file "$url" "$file"; then
-            echo -e "${GREEN}✓${NC} Installed: $file"
+            printf "%b\n" "${GREEN}✓${NC} Installed: $file"
         else
-            echo -e "${RED}✗${NC} Failed: $file"
+            printf "%b\n" "${RED}✗${NC} Failed: $file"
             failed_files+=("$file")
         fi
     done
@@ -190,7 +199,7 @@ install_files() {
 
     # Check if any downloads failed
     if [ ${#failed_files[@]} -gt 0 ]; then
-        echo -e "${RED}Error: Failed to download the following files:${NC}"
+        printf "%b\n" "${RED}Error: Failed to download the following files:${NC}"
         for file in "${failed_files[@]}"; do
             echo "  - $file"
         done
@@ -227,7 +236,7 @@ set_permissions() {
     for script in "${scripts[@]}"; do
         if [ -f "$script" ]; then
             chmod +x "$script"
-            echo -e "${GREEN}✓${NC} Made executable: $script"
+            printf "%b\n" "${GREEN}✓${NC} Made executable: $script"
         fi
     done
 
@@ -236,7 +245,7 @@ set_permissions() {
 
 # Print success message with next steps
 print_success() {
-    echo -e "${GREEN}✓ claude-yolo installed successfully!${NC}"
+    printf "%b\n" "${GREEN}✓ claude-yolo installed successfully!${NC}"
     echo ""
     echo "Files installed:"
     for file in "${FILES[@]}"; do
