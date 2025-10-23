@@ -102,7 +102,7 @@ is_container_running() {
 
 if in_container; then
     # Inside container: run with --dangerously-skip-permissions
-    exec claude --dangerously-skip-permissions "$@"
+    exec "$CLAUDE_BIN" --dangerously-skip-permissions "$@"
 elif [ "$USE_DEVCONTAINER" = true ]; then
     # On host with .devcontainer: use devcontainer
     check_devcontainer_cli
