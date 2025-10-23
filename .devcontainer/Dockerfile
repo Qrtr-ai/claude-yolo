@@ -85,6 +85,7 @@ RUN sh -c "$(wget -O- https://github.com/deluan/zsh-in-docker/releases/download/
   -a "source /usr/share/doc/fzf/examples/completion.zsh" \
   -a "export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \
   -a "if ! pgrep -f 'socat.*9222' > /dev/null; then /usr/local/bin/start-chrome-proxy.sh; fi" \
+  -a "alias claude='claude --dangerously-skip-permissions'" \
   -x
 
 # Install Claude Code
