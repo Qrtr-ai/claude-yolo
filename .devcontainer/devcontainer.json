@@ -9,14 +9,10 @@
       "ZSH_IN_DOCKER_VERSION": "1.2.0"
     }
   },
-  "runArgs": [
-    "--add-host=host.docker.internal:host-gateway"
-  ],
+  "runArgs": ["--add-host=host.docker.internal:host-gateway"],
   "customizations": {
     "vscode": {
-      "extensions": [
-        "anthropic.claude-code"
-      ],
+      "extensions": ["anthropic.claude-code", "bierner.markdown-mermaid"],
       "settings": {
         "editor.formatOnSave": true,
         "files.insertFinalNewline": true,

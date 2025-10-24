@@ -33,6 +33,17 @@ find_claude_binary() {
 
 CLAUDE_BIN=$(find_claude_binary)
 
+# Check for --no-yolo flag and filter it out
+NO_YOLO=false
+FILTERED_ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--no-yolo" ]; then
+        NO_YOLO=true
+    else
+        FILTERED_ARGS+=("$arg")
+    fi
+done
+
 # Find project root by walking up directories looking for .devcontainer
 find_project_root() {
     local dir="$(pwd)"
@@ -101,10 +112,15 @@ is_container_running() {
 }
 
 if in_container; then
-    # Inside container: run with --dangerously-skip-permissions
-    exec "$CLAUDE_BIN" --dangerously-skip-permissions "$@"
-elif [ "$USE_DEVCONTAINER" = true ]; then
-    # On host with .devcontainer: use devcontainer
+    # Inside container: run with --dangerously-skip-permissions (unless --no-yolo)
+    if [ "$NO_YOLO" = true ]; then
+        echo "Running claude WITHOUT --dangerously-skip-permissions..."
+        exec "$CLAUDE_BIN" "${FILTERED_ARGS[@]}"
+    else
+        exec "$CLAUDE_BIN" --dangerously-skip-permissions "$@"
+    fi
+elif [ "$USE_DEVCONTAINER" = true ] && [ "$NO_YOLO" = false ]; then
+    # On host with .devcontainer: use devcontainer (unless --no-yolo)
     check_devcontainer_cli
 
     # Start container if not running
@@ -116,6 +132,11 @@ elif [ "$USE_DEVCONTAINER" = true ]; then
     # Run claude with --dangerously-skip-permissions inside container
     exec npx --yes @devcontainers/cli exec --workspace-folder "$PROJECT_ROOT" claude --dangerously-skip-permissions "$@"
 else
-    # No .devcontainer found: run claude normally
-    exec "$CLAUDE_BIN" "$@"
+    # No .devcontainer found or --no-yolo: run claude normally
+    if [ "$NO_YOLO" = true ]; then
+        echo "Running claude on host WITHOUT --dangerously-skip-permissions..."
+        exec "$CLAUDE_BIN" "${FILTERED_ARGS[@]}"
+    else
+        exec "$CLAUDE_BIN" "$@"
+    fi
 fi

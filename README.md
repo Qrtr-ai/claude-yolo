@@ -26,6 +26,14 @@ projects. I offer no guarantees on the security aspects of this approach, or eve
 > that I am not using, so please be aware of this.
 ---
 
+## TL;DR:
+
+Install claude-yolo in your existing project with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Qrtr-ai/claude-yolo/main/install.sh | sh
+```
+
 ## Table of Contents
 
 - [Key Features](#key-features)
@@ -73,6 +81,8 @@ projects. I offer no guarantees on the security aspects of this approach, or eve
 - **Persistent configuration**: Your Claude authentication persists across container restarts
 - **Zero permission prompts**: Claude can freely modify files and run commands within the container
 - **Easy to use**: Single script to run Claude from anywhere (inside container or on the host)
+- **Easy to bypass**: If you put the `claude` script on your `PATH` and you ever want to run "real" claude,
+  bypassing the container and `--dangerously-skip-permissions`, just add the `--no-yolo` argument to your command line.
 
 ## Why does this exist?
 
